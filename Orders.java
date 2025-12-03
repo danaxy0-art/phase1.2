@@ -10,8 +10,8 @@ import java.util.Scanner;
 public class Orders {
     private LinkedList<Order> all_orders;
     private Customers all_Customers;
-    private String filePath; // للحفظ التلقائي
-
+    private String filePath; 
+    private LinkedList<Order> orders_list;
     static DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Orders(LinkedList<Customer> input_customers, LinkedList<Order> all_orders) {
@@ -41,7 +41,7 @@ public class Orders {
         return null;
     }
 
-    // Time Complexity: O(n) للبحث عن العميل
+    // Time Complexity: O(n) 
     public void assign(Order ord) {
         Customer p = all_Customers.searchById(ord.getCustomerId());
         if (p == null)
@@ -55,7 +55,7 @@ public class Orders {
         if (searchOrderById(ord.getOrderId()) == null) {
             all_orders.addLast(ord);
             assign(ord);
-            saveAll(); // حفظ تلقائي
+            saveAll(); 
         } else {
             System.out.println("Order with ID " + ord.getOrderId() + " already exists!");
         }
@@ -69,7 +69,7 @@ public class Orders {
             if (all_orders.retrieve().getOrderId() == id) {
                 all_orders.remove();
                 System.out.println("Order removed: " + id);
-                saveAll(); // حفظ تلقائي
+                saveAll(); 
                 return;
             }
             if (all_orders.last()) break;
@@ -77,13 +77,44 @@ public class Orders {
         }
         System.out.println("Order ID not found");
     }
+    public void deleteOrderById(int id) {
+        if (all_orders.empty()) {
+            System.out.println("No orders found.");
+            return;
+        }
 
-    // Time Complexity: O(1) parsing
+        all_orders.findfirst();
+        while (true) {
+            if (all_orders.retrieve().getOrderId() == id) {
+                all_orders.remove();   
+                System.out.println("Order ID " + id + " has been deleted.");
+                saveAll();            
+                return;
+            }
+            if (all_orders.last()) break;
+            all_orders.findenext();
+        }
+        System.out.println("Order ID " + id + " not found.");
+    }
+
+
+
+	public LinkedList<Order> get_orders_list() {
+		return all_orders();
+	}
+
+
+	private LinkedList<Order> all_orders() {
+	    return all_orders; 
+	}
+
+
+	// Time Complexity: O(1) parsing
     public static Order convert_String_to_order(String line) {
         String a[] = line.split(",", 6);
         String s0 = a[0].trim().replace("\"",""); // orderId
         String s1 = a[1].trim().replace("\"",""); // customerId
-        String s2 = a[2].trim().replace("\"",""); // productIds (semicolon separated)
+        String s2 = a[2].trim().replace("\"",""); // productIds 
         String s3 = a[3].trim().replace("\"",""); // totalPrice
         String s4 = a[4].trim().replace("\"",""); // date yyyy-MM-dd
         String s5 = a[5].trim().replace("\"",""); // status
@@ -142,7 +173,7 @@ public class Orders {
     }
 
     // حفظ تلقائي لكل الطلبات في CSV
-    private void saveAll() {
+    void saveAll() {
         if (filePath == null || filePath.isEmpty()) return;
         try (PrintWriter pw = new PrintWriter(new FileWriter(filePath))) {
             pw.println("orderId,customerId,productIds,totalPrice,date,status");
@@ -159,4 +190,5 @@ public class Orders {
             System.out.println("Error saving orders: " + e.getMessage());
         }
     }
+
 }
