@@ -91,6 +91,11 @@ public class Reviews {
         }
         return result;
     }
+    
+    public LinkedList<Review> get_reviews_list() {
+        return reviews;
+    }
+
 
     // Time Complexity: O(n)
     public void displayAllReviews() {
@@ -144,7 +149,7 @@ public class Reviews {
     }
 
     // حفظ تلقائي للـ CSV
-    private void saveAll() {
+    void saveAll() {
         if (filePath == null || filePath.isEmpty()) return;
         try (PrintWriter pw = new PrintWriter(new FileWriter(filePath))) {
             pw.println("reviewId,productId,customerId,rating,comment");
