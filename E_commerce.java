@@ -2,9 +2,9 @@ package project212;
 
 import java.time.LocalDate;
 import java.util.Scanner;
+import java.util.Stack;
 
-import project212.phase2.Order;
-import project212.phase2.Product;
+
 
 public class E_commerce {
     // ==== Lists (shared) ====
@@ -23,7 +23,7 @@ public class E_commerce {
 
     // ==== CSV paths====
     private static final String BASE_PATH     = "C:\\Users\\danam\\Desktop\\project212\\";
-    private static final String PRODUCTS_CSV  = BASE_PATH + "prodcuts.csv";   // لو ملفك اسمه products.csv عدّليه هنا
+    private static final String PRODUCTS_CSV  = BASE_PATH + "prodcuts.csv";  
     private static final String CUSTOMERS_CSV = BASE_PATH + "customers.csv";
     private static final String ORDERS_CSV    = BASE_PATH + "orders.csv";
     private static final String REVIEWS_CSV   = BASE_PATH + "reviews.csv";
@@ -228,7 +228,7 @@ public class E_commerce {
         }
     }
 
-    // تاريخ مرن (يقبل 2025-2-3 و 2025/2/3 و 2025-02-03...)
+    
     private static LocalDate readDateFlexible(String prompt) {
         String[] patterns = {
             "yyyy-MM-dd", "yyyy-M-d", "yyyy-M-dd", "yyyy-MM-d",
@@ -243,7 +243,7 @@ public class E_commerce {
                     return LocalDate.parse(s, f);
                 } catch (Exception ignore) {}
             }
-            System.out.println("❌ تاريخ غير صالح. أمثلة صحيحة: 2025-02-03 أو 2025-2-3 أو 2025/2/3");
+            System.out.println("invalid input");
         }
     }
 
@@ -264,11 +264,11 @@ public class E_commerce {
                 int id = input.nextInt(); input.nextLine();
 
                 if (all_products != null && all_products.SearchProductById(id) != null) {
-                    System.out.println("⚠️ Product ID " + id + " موجود مسبقًا. أدخل رقمًا مختلفًا.");
+                    System.out.println(" Product ID " + id + " can't ,exist");
                     continue;
                 }
                 if (id >= 101 && id <= 150) {
-                    System.out.println("ℹ️ ID داخل 101–150 (مدى محجوز). مسموح لأنه غير موجود حاليًا.");
+                    System.out.println("invalid (101-150 exist)ا.");
                     return id;
                 }
                 return id; // أقل من 101 أو أكبر من 150، طالما غير مكرر مسموح
@@ -286,7 +286,7 @@ public class E_commerce {
             if (input.hasNextInt()) {
                 int id = input.nextInt(); input.nextLine();
                 if (all_products == null || all_products.SearchProductById(id) == null) {
-                    System.out.println("⚠️ Product ID " + id + " غير موجود. أدخل رقم منتج موجود.");
+                    System.out.println(" Product ID " + id + " doesn't exist.");
                     continue;
                 }
                 return id;
@@ -311,7 +311,7 @@ public class E_commerce {
                 } catch (NumberFormatException ex) { ok = false; break; }
             }
             if (!ok) {
-                System.out.println("❌ IDs يجب أن تكون موجودة فعلًا ومفصولة بـ ; مثل: 7;101;205");
+                System.out.println("must be exist");
                 continue;
             }
             return s;
@@ -346,7 +346,7 @@ public class E_commerce {
         while (true) {
             int id = readInt(prompt);
             if (all_Orders != null && all_Orders.searchOrderById(id) != null) {
-                System.out.println("⚠️ Order with ID " + id + " already exists. Enter another ID.");
+                System.out.println(" Order with ID " + id + " already exists. Enter another ID.");
                 continue;
             }
             return id;
@@ -358,12 +358,49 @@ public class E_commerce {
         while (true) {
             int id = readInt(prompt);
             if (all_Reviews != null && all_Reviews.SearchReviewById(id) != null) {
-                System.out.println("⚠️ Review with ID " + id + " already exists. Enter another ID.");
+                System.out.println(" Review with ID " + id + " already exists. Enter another ID.");
                 continue;
             }
             return id;
         }
     }
+    private static int readExistingOrderId(String string) {
+    	    ensureLoaded();
+    	    while (true) {
+    	        System.out.print(string);
+    	        if (input.hasNextInt()) {
+    	            int id = input.nextInt();
+    	            input.nextLine(); // consume the rest of the line
+    	            if (all_Orders != null && all_Orders.searchOrderById(id) != null) {
+    	                return id;
+    	            } else {
+    	                System.out.println("Order ID " + id + " does not exist. Try again.");
+    	            }
+    	        } else {
+    	            System.out.println("Invalid input. Please enter a numeric Order ID.");
+    	            input.nextLine(); 
+    	        }
+    	    }
+	}
+    private static int readExistingReviewId(String prompt) {
+        ensureLoaded(); 
+        while (true) {
+            System.out.print(prompt);
+            if (input.hasNextInt()) {
+                int id = input.nextInt();
+                input.nextLine();
+                if (all_Reviews != null && all_Reviews.SearchReviewById(id) != null) {
+                    return id; 
+                } else {
+                    System.out.println("Review ID " + id + " doesn't exist. Try again.");
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a numeric ID.");
+                input.nextLine();
+            }
+        }
+    }
+
 
     // =========================
     // main
@@ -382,9 +419,16 @@ public class E_commerce {
             System.out.println("6: List all customers");
             System.out.println("7: Show top 3 products by average rating");
             System.out.println("8: Display all orders");
-            System.out.println("9: Display all orders between 2 dates");
-            System.out.println("10: Show common high-rated products for 2 customers");
-            System.out.println("11: Exit");
+            System.out.println("9: Display reviews by customer ID");
+            System.out.println("10: Display all orders between 2 dates");
+            System.out.println("11: Show common high-rated products for 2 customers");
+            System.out.println("12: Update Order Status");
+            System.out.println("13: Update Product");
+            System.out.println("14: remove Product");
+            System.out.println("15: Show Customer order history");
+            System.out.println("16: cancel order");
+            System.out.println("17: Edit review");
+            System.out.println("18: Exit");
 
             choice = readInt("Enter your choice: ");
 
@@ -406,7 +450,7 @@ public class E_commerce {
                 }
 
                 case 3: { 
-                    int id      = readUniqueCustomerId("Enter Customer ID [new]: ");
+                    int id = readUniqueCustomerId("Enter Customer ID [new]: ");
                     String name = readName("Enter Customer Name: ");
                     String email= readLine("Enter Customer Email: ");
                     Customer c  = new Customer(id, name, email);
@@ -416,52 +460,68 @@ public class E_commerce {
                 }
 
                 case 4: {
-                    int oid = readUniqueOrderId("Enter Order ID [new]: ");
-                    int cid = readExistingCustomerId("Enter Customer ID [existing]: ");
-                    String prod = readValidProductIds("Enter Product IDs (semicolon-separated, must exist): ");
-                    
-                    String[] prodList = prod.split(";");
+                	int oid = readUniqueOrderId("Enter Order ID [new]: ");
+                	int cid = readExistingCustomerId("Enter Customer ID [existing]: ");
+                	double total = 0;
+                	String allProducts = "";
 
-                    boolean outOfStock = false;
-                    double total = 0;  
+                	boolean addProducts = true;
 
-                    for (String pIdStr : prodList) {
-                        int pid = Integer.parseInt(pIdStr.trim());
-                        Product p = all_products.SearchProductById(pid);
+                	while (addProducts) {
+                	    String prod = readValidProductIds("Enter Product IDs (semicolon-separated, must exist): ");
+                	    String[] prodList = prod.split(";");
 
-                        if (p == null) {
-                            System.out.println("Product " + pid + " not found! Cancelling order.");
-                            outOfStock = true;
-                            break;
-                        }
+                	    boolean outOfStock = false;
+                	    for (String pIdStr : prodList) {
+                	        int pid = Integer.parseInt(pIdStr.trim());
+                	        Product p = all_products.SearchProductById(pid);
 
-                        if (p.getStock() == 0) {
-                            System.out.println("\nProduct " + pid + " is OUT OF STOCK.");
-                            outOfStock = true;
-                        } else {
-                            total += p.getPrice();    
-                        }
-                    }
+                	        if (p == null) {
+                	            System.out.println("Product " + pid + " not found! Skipping this set.");
+                	            outOfStock = true;
+                	            break;
+                	        }
 
-                    if (outOfStock) break;
+                	        if (p.getStock() == 0) {
+                	            System.out.println("\nProduct " + pid + " is OUT OF STOCK. Skipping this set.");
+                	            outOfStock = true;
+                	            break;
+                	        } else {
+                	            total += p.getPrice();
+                	            allProducts += pid + ";"; // accumulate product IDs
+                	        }
+                	    }
 
-                    LocalDate date = readDateFlexible("Enter Order Date (e.g., 2025-2-3): ");
-                    String status = readLine("Enter Status (Pending/Processing/Shipped/Delivered/Cancelled/Returned): ");
+                	    if (!outOfStock) {
+                	        System.out.println("Products added to order successfully. Current total: " + total);
+                	    }
 
-                    Order o = new Order(oid, cid, prod, total, date, status);
-                    add_Order(o);
+                	    String ans = readLine("Do you want to add more products to the same order? (yes/no): ").toLowerCase();
+                	    if (!ans.equals("yes") && !ans.equals("y")) {
+                	        addProducts = false;
+                	    }
+                	}
 
-                    System.out.println("Order added successfully.");
-                    System.out.println("Total Price: " + total);
-                    break;
+                	if (allProducts.endsWith(";")) allProducts = allProducts.substring(0, allProducts.length() - 1);
+
+                	LocalDate date = readDateFlexible("Enter Order Date (e.g., 2025-2-3): ");
+                	String status = readLine("Enter Status (Pending/Processing/Shipped/Delivered/Cancelled/Returned): ");
+
+                	Order o = new Order(oid, cid, allProducts, total, date, status);
+                	add_Order(o);
+
+                	System.out.println("Order added successfully.");
+                	System.out.println("Total Price: " + total);
+                	
+                	break;
                 }
-
+                
 
                 case 5: { 
-                    int rid     = readUniqueReviewId("Enter Review ID [new]: ");
-                    int pid     = readExistingProductId("Enter Product ID [existing]: ");
-                    int cid     = readExistingCustomerId("Enter Customer ID [existing]: ");
-                    int rating  = readRating("Enter Rating (1–5): "); // <<< هنا الإصلاح
+                    int rid = readUniqueReviewId("Enter Review ID [new]: ");
+                    int pid = readExistingProductId("Enter Product ID [existing]: ");
+                    int cid = readExistingCustomerId("Enter Customer ID [existing]: ");
+                    int rating = readRating("Enter Rating (1–5): "); // <<< هنا الإصلاح
                     String comment = readLine("Enter Comment: ");
                     Review r = new Review(rid, pid, cid, rating, comment);
                     add_Review(r);
@@ -482,31 +542,234 @@ public class E_commerce {
                     ensureLoaded();
                     all_Orders.displayAllOrders();
                     break;
+                case 9:{
+                	int cid =readInt("Enter customer ID:");
+                	LinkedList<Review> REVlist = all_Reviews.getReviewsByCustomer(cid);
+                	if (REVlist.empty()) System.out.println("No reviews by this Customer");
+                	else REVlist.display();
+                	break;
+                }
+                case 10:{ 
+                	ensureLoaded();
+                    System.out.println("Display all orders between 2 dates:");
 
-                case 9:
-                    displayAllOrders_between2dates(
-                        LocalDate.of(2025, 2, 1),
-                        LocalDate.of(2025, 2, 9)
-                    );
+                    LocalDate startDate = readDateFlexible("Enter start date (e.g., 2025-2-1): ");
+                    LocalDate endDate   = readDateFlexible("Enter end date   (e.g., 2025-2-9): ");
+
+                    LinkedList<Order> list = all_Orders.get_orders_list(); 
+
+                    if (list.empty()) {
+                    	System.out.println("No orders found");
+                    	break;
+                    }
+                    boolean any = false;
+                    System.out.println("Order between" + startDate+ "and"+ endDate+":");
+                    list.findfirst();
+                    
+                    while(true) {
+                    	Order o1 = list.retrieve();
+                    	if (!o1.getOrderDate().isBefore(startDate) &&
+                    	        !o1.getOrderDate().isAfter(endDate)) {
+
+                    	        System.out.println(
+                    	            "OrderID: " + o1.getOrderId()
+                    	            + " | CustomerID: " + o1.getCustomerId()
+                    	            + " | Products: " + o1.getProd_Ids()
+                    	            + " | TotalPrice: " + o1.getTotalPrice()
+                    	            + " | Date: " + o1.getOrderDate()
+                    	            + " | Status: " + o1.getStatus()
+                    	        );
+                    	        any = true;
+                    	    }
+
+                    	    if (list.last()) break;
+                    	    list.findenext();        
+                    	}
+
+                    	if (!any) System.out.println("No results.");
+                    System.out.println("-----------------------------------");
                     break;
-
-                case 10: {
+                }
+                case 11: {
                     int c1 = readExistingCustomerId("Enter first customer ID [existing]: ");
                     int c2 = readExistingCustomerId("Enter second customer ID [existing]: ");
                     showCommonHighRatedProducts(c1, c2);
                     break;
                 }
+                case 12:{
+                	ensureLoaded();
+                	System.out.println("Update Order Status.");
+                	int update= readNewProductId("Enter Order ID:");
+                	String newStatus = readLine("Enter new Status:");
+                	LinkedList<Order> list= all_Orders.get_orders_list();
+                	
+                	if(list.empty()) {
+                		System.out.println("No orders exist");
+                		break;
+                	}
+                	 boolean found = false;
 
-                case 11:
+                	    list.findfirst();
+                	    while (true) {
+                	        Order o = list.retrieve();
+
+                	        if (o.getOrderId() == update) {
+                	            o.setStatus(newStatus);
+                	            System.out.println("Order updated successfully.");
+                	            
+                	            all_Orders.saveAll(); 
+                	            found = true;
+                	            break;
+                	        }
+
+                	        if (list.last()) break;
+                	        list.findenext();
+                	    }
+
+                	    if (!found)
+                	        System.out.println("Order not found.");
+                	    break;
+                }
+                case 13:{
+                	ensureLoaded();
+                    int pid = readExistingProductId("Enter Product ID to update: ");
+                    Product p = all_products.SearchProductById(pid);
+                    if(p != null) {
+                        double newPrice = readDouble("Enter new Price (current: " + p.getPrice() + "): ");
+                        p.setPrice(newPrice);
+
+                        int newQty = readInt("Enter new Quantity (current: " + p.getStock() + "): ");
+                        p.setStock(newQty);
+
+                        System.out.println("Product updated successfully.");
+                        all_products.saveAll(); 
+                    } else {
+                        System.out.println("Product not found.");
+                        break;
+                    }
+                }
+                case 14:{
+                	ensureLoaded();
+                    int pid = readExistingProductId("Enter Product ID to remove: ");
+                    Product p = all_products.SearchProductById(pid);
+
+                    if (p != null) {
+                        all_products.removeProduct(pid); 
+                        System.out.println("Product removed successfully.");
+                        all_products.saveAll(); 
+                    } else {
+                        System.out.println("Product not found.");
+                    }
+                    break;
+                }
+                case 15: {
+                	int cid = readExistingCustomerId("Enter Customer ID to view order history: ");
+
+                	LinkedList<Order> list = all_Orders.get_orders_list();
+
+                	if (list.empty()) {
+                	    System.out.println("No orders exist.");
+                	} else {
+                	    boolean found = false;
+                	    System.out.println("Order history for Customer ID: " + cid);
+                	    System.out.println("OrderID\tProducts\tTotalPrice\tDate\tStatus");
+                	    System.out.println("------------------------------------------------------");
+
+                	    list.findfirst();
+                	    while (true) {
+                	        Order o = list.retrieve();
+                	        if (o.getCustomerId() == cid) {
+                	            System.out.println(" " + o.getOrderId()
+                	                + "\t" + o.getProd_Ids()
+                	                + "\t" + o.getTotalPrice()
+                	                + "\t" + o.getOrderDate()
+                	                + "\t" + o.getStatus());
+                	            found = true;
+                	        }
+
+                	        if (list.last()) break;
+                	        list.findenext();
+                	    }
+
+                	    if (!found) System.out.println("No orders found for this customer.");
+                	}
+                	System.out.println("------------------------------------------------------");
+
+                }
+                case 16: {
+                    ensureLoaded();
+                    int oid = readExistingOrderId("Enter Order ID to cancel: ");
+                    LinkedList<Order> list = all_Orders.get_orders_list();
+
+                    if (list.empty()) {
+                        System.out.println("No orders exist.");
+                    } else {
+                        boolean found = false;
+                        list.findfirst();
+                        while (true) {
+                            Order o = list.retrieve();
+                            if (o.getOrderId() == oid) {
+                                list.remove();          // Remove from linked list
+                                System.out.println("Order ID " + oid + " has been canceled successfully.");
+                                all_Orders.saveAll();   // Update CSV
+                                found = true;
+                                break;
+                            }
+                            if (list.last()) break;
+                            list.findenext();
+                        }
+                        if (!found) System.out.println("Order not found.");
+                    }
+                    System.out.println("------------------------------------------------------");
+                }
+                case 17: {
+                    ensureLoaded();
+                    int rid = readExistingReviewId("Enter Review ID to edit: ");
+                    LinkedList<Review> list = all_Reviews.get_reviews_list();
+
+                    if (list.empty()) {
+                        System.out.println("No reviews exist.");
+                    } else {
+                        boolean found = false;
+                        list.findfirst();
+                        while (true) {
+                            Review r = list.retrieve();
+                            if (r.getReviewID() == rid) {
+                                String newComment = readLine("Enter new comment (leave empty to keep current): ");
+                                if (!newComment.isEmpty()) r.setComment(newComment);
+
+                                int newRating = readInt("Enter new rating (1–5, current: " + r.getRating() + "): ");
+                                if (newRating >= 1 && newRating <= 5) r.setRating(newRating);
+                                else System.out.println("Invalid rating. Keeping old rating.");
+
+                                System.out.println("Review updated successfully.");
+                                all_Reviews.saveAll();
+                                found = true;
+                                break;
+                            }
+                            if (list.last()) break;
+                            list.findenext();
+                        }
+
+                        if (!found) System.out.println("Review not found.");
+                    }
+                    System.out.println("------------------------------------------------------");
+                }
+
+                case 18:{
                     System.out.println("Goodbye!");
                     break;
-
+                }
                 default:
                     System.out.println("Unknown choice.");
                     break;
             }
-        } while (choice != 11);
+        } while (choice != 18);
 
         input.close();
     }
+
+	
+
+	
 }
